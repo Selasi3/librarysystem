@@ -3,7 +3,7 @@ from django.urls import reverse
 import uuid
 # Create your models here.
 class Genre(models.Model):
-    name=models.CharField(max_length=200, help_text="Enter a book")
+    name=models.CharField(max_length=200, help_text="Enter a genre")
 
     def __str__(self):
         return self.name
@@ -15,8 +15,14 @@ class Book(models.Model):
     isbn = models.CharField("ISBN", max_length=13, unique=True, help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn">ISBN number</a>')
     genre = models.ManyToManyField(Genre, help_text='Select a genre for this book')
     language=models.ForeignKey("Language", on_delete=models.SET_NULL, null=True)
+    
     def __str__(self):
         return self.title
+    
+    def display_genre(self):
+        return ', '.join(genre.name for genre in self.genre.all()[:3])
+    
+    display_genre.short_description ="Genre"
     
     def get_absolute_url(self):
         return reverse('book-detail', args=[str(self.id)])
