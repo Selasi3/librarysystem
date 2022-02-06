@@ -1,5 +1,7 @@
 from django.db import models
 from django.urls import reverse
+from django.contrib.auth.models import User
+from datetime import date
 import uuid
 # Create your models here.
 class Genre(models.Model):
@@ -16,6 +18,8 @@ class Book(models.Model):
     genre = models.ManyToManyField(Genre, help_text='Select a genre for this book')
     language=models.ForeignKey("Language", on_delete=models.SET_NULL, null=True)
     
+  
+
     def __str__(self):
         return self.title
     
@@ -32,7 +36,14 @@ class BookInstance(models.Model):
     book = models.ForeignKey('Book', on_delete=models.RESTRICT,null=True)
     imprint =  models.CharField(max_length=200)
     due_back = models.DateField(null=True, blank=True)
+    borrower = models.ForeignKey(User, on_delete=models.SET_NULL,null=True, blank=True)
 
+    @property
+    def is_overdue(self):
+        if self.due_back and date.today() > self.due_back:
+            return True
+        return False
+        
     LOAN_STATUS = (
         ('m', 'Maintenance'),
         ('o', 'On loan'),
